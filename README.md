@@ -1,11 +1,59 @@
 # ⭐ Spring Data JPA
 
 ### Description
-Spring Data Jpa Practice
+Pracktice Spring Data Jpa & Github Project Board
 
 ---
 
-# ⭐ 요구사항 정의
+## ⭐ 1. 연관관계 Mapping
+
+<br>
+
+> Member
+
+- #### 멤버:커피
+    - 1:N
+- #### 멤버:스탬프
+    - 1:1
+
+> Coffee
+
+- #### Embeded 타입
+    - Money
+- #### 멤버:오더커피
+    - 1:N
+
+> Order
+
+- #### 멤버:오더
+    - N:1
+- #### 오더:오더커피
+    - 1:N
+
+> OrderCoffee
+
+- #### 오더커피:오더
+    - N:1
+- #### 오더커피:커피
+    - N:1
+
+> Question
+
+- #### 질문:멤버
+    - 1:N
+- #### 질문:질문답변:답변
+    - 질문 - 1:N-질문답변-N:1 - 답변
+
+> Answer
+
+- #### 질문:답변
+    - 1:N
+- #### 멤버:답변
+    - 1:N (관리자만 답변 허용)
+
+---
+
+## ⭐ 2. 요구사항 정의 & 
 
 <br>
 
