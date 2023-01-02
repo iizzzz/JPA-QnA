@@ -41,8 +41,8 @@ Pracktice Spring Data Jpa & Github Project Board
 
 - #### 질문:멤버
     - 1:N
-- #### 질문:질문답변:답변
-    - 질문 - 1:N-질문답변-N:1 - 답변
+- #### 질문:답변
+    - 1:N
 
 > Answer
 
