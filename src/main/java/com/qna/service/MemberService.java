@@ -54,6 +54,22 @@ public class MemberService {
         return memberRepository.save(updatedMember);
     }
 
+//    public Member updateMember(Member member) {
+//        Member findMember = findVerifiedMember(member.getMemberId());
+//
+//        // 수정할 정보들이 늘어나면 반복되는 코드가 늘어나는 문제점이 있음
+//        Optional.ofNullable(member.getName())
+//                .ifPresent(name -> findMember.setName(name));
+//        Optional.ofNullable(member.getPhone())
+//                .ifPresent(phone -> findMember.setPhone(phone));
+//        // 추가된 부분
+//        Optional.ofNullable(member.getMemberStatus())
+//                .ifPresent(memberStatus -> findMember.setMemberStatus(memberStatus));
+////        findMember.setModifiedAt(LocalDateTime.now());
+//
+//        return memberRepository.save(findMember);
+//    }
+
     public Member findMember(long memberId) {
         return findVerifiedMember(memberId);
     }

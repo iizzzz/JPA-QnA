@@ -26,7 +26,6 @@ import java.util.List;
 public class QuestionController {
     private final QuestionService questionService;
     private final QuestionMapper mapper;
-    private final MemberService memberService;
 
     @PostMapping
     public ResponseEntity post(@Valid @RequestBody QuestionDto.Post post) {
@@ -40,7 +39,7 @@ public class QuestionController {
                                 @Valid @RequestBody QuestionDto.Patch patch) {
         patch.setQuestionId(questionId);
 
-        Question update = questionService.update(mapper.patchToEntity(patch).getQuestionId());
+        Question update = questionService.update(mapper.patchToEntity(patch));
 
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.entityToResponse(update)), HttpStatus.OK);
     }

@@ -5,7 +5,7 @@ import lombok.Getter;
 
 import javax.validation.constraints.Positive;
 
-public class OrderCoffee {
+public class OrderCoffeeDto {
 
     @Getter
     public static class Request {

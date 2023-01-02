@@ -1,5 +1,6 @@
 package com.qna.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.qna.utils.Auditable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
