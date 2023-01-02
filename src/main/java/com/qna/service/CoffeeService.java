@@ -2,6 +2,8 @@ package com.qna.service;
 
 import com.qna.entity.Coffee;
 import com.qna.entity.Money;
+import com.qna.error.BusinessLogicException;
+import com.qna.error.ExceptionCode;
 import com.qna.repository.CoffeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

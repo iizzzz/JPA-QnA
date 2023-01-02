@@ -1,12 +1,12 @@
 package com.qna.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.qna.entity.Answer;
 import com.qna.entity.Member;
 import com.qna.entity.Question;
 import com.qna.error.BusinessLogicException;
 import com.qna.error.ExceptionCode;
 import com.qna.repository.QuestionRepository;
-import com.qna.utils.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +24,7 @@ public class QuestionService {
 
     //----------------------------- DI ---------------------------------
     private final QuestionRepository questionRepository;
-    private final CustomBeanUtils beanUtils;
+//    private final CustomBeanUtils beanUtils;
     private final MemberService memberService;
 
     //----------------------------- DI ---------------------------------
@@ -52,31 +52,34 @@ public class QuestionService {
     }
 
     /* 수정 */
-    public Question update(long questionId) {
+    public Question update(Question question) {
         // 요구사항 1. 질문은 회원만 수정 가능 (Security 미적용으로 부분 적용) - 해결
-        Question findQuestion = findVerifiedQuestion(questionId);
-        Member findMember = memberService.findVerifiedMember(findQuestion.getMember().getMemberId());
-
+        Question findQuestion = findVerifiedQuestion(question.getQuestionId());
 
         // 요구사항 3. 질문을 비공개로 설정할 수 있는건 고객만 가능 (Security 미적용)
 
         // 요구사항 5-6. 괸리자가 답변을 달 경우 질문의 상태 ANSWERED로 수정 + 관리자만 상태 변경 가능 (Security 미적용)
-//        if (findQuestion.getAnswers() != answerService.findVerifiedAnswer(findQuestion.getAnswers().getAnswerId())) {
-//            return findQuestion; }
+
 
         // 요구사항 2. 질문의 공개여부를 변경할 경우 상태 적용 - 해결
         // 요구사항 4. 답변이 등록 될 경우 상태 수정 - 해결
-//        Question updatedQuestion = (Question) beanUtils.copyNonNullProperties(questionId, findQuestion);
-
         // 요구사항 7. 질문 DELETE 상태로의 변경은 회원만 가능
-
-        Optional.ofNullable(findQuestion.getTitle())
+        Optional.ofNullable(question.getTitle())
                 .ifPresent(findQuestion::setTitle);
-        Optional.ofNullable(findQuestion.getContent())
+        Optional.ofNullable(question.getContent())
                 .ifPresent(findQuestion::setContent);
-        Optional.ofNullable(findQuestion.getSecret())
+        Optional.ofNullable(question.getSecret())
                 .ifPresent(findQuestion::setSecret);
 
+        // 질문의 공개 & 비밀글 여부가 바뀌면 답변의 공개 & 비밀글 여부 같이 변경 - 해결
+        List<Answer> answerList = findQuestion.getAnswers();
+        for (Answer answer : answerList) {
+            if (findQuestion.getSecret() == Boolean.TRUE) {
+                answer.setSecret(Boolean.TRUE);
+            } else {
+                answer.setSecret(Boolean.FALSE);
+            }
+        }
         return questionRepository.save(findQuestion);
     }
 
@@ -98,8 +101,7 @@ public class QuestionService {
 //            throw new BusinessLogicException(ExceptionCode.QUESTION_NOT_AUTHORIZED);
 //        }
 
-        // 요구사항 3. 조회 시, 답변이 존재한다면 답변도 같이 조회
-        List<Answer> answers = findQuestion.getAnswers();
+        // 요구사항 3. 조회 시, 답변이 존재한다면 답변도 같이 조회 - 해결
 
         // 요구사항 4. 이미 삭제 상태인 질문 조회 불가능
         if (findQuestion.getStatus() == Question.QuestionStatus.DELETE) {
@@ -152,10 +154,9 @@ public class QuestionService {
     }
 
     private Question findVerifiedQuestion(long questionId) {
-        Optional<Question> optQuestion = questionRepository.findByOne(questionId);
-        Question findQuestion = optQuestion.orElseThrow(() ->
-                new BusinessLogicException(ExceptionCode.QUESTION_NOT_FOUND));
+        Optional<Question> optQuestion = Optional.of(questionRepository.getReferenceById(questionId));
 
-        return findQuestion;
+        return optQuestion.orElseThrow(() ->
+                new BusinessLogicException(ExceptionCode.QUESTION_NOT_FOUND));
     }
 }

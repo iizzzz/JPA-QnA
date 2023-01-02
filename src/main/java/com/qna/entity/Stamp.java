@@ -1,5 +1,7 @@
 package com.qna.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.qna.entity.Member;
 import com.qna.utils.Auditable;
 import lombok.Getter;
@@ -22,6 +24,7 @@ public class Stamp extends Auditable {
 
     @OneToOne
     @JoinColumn(name = "MEMBER_ID")
+    @JsonIgnore
     private Member member;
 
     public void setMember(Member member) {

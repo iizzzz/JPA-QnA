@@ -1,10 +1,11 @@
 package com.qna.mapper;
 
-import com.qna.dto.OrderCoffee;
+import com.qna.dto.OrderCoffeeDto;
 import com.qna.dto.OrderDto;
 import com.qna.entity.Coffee;
 import com.qna.entity.Member;
 import com.qna.entity.Order;
+import com.qna.entity.OrderCoffee;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -48,7 +49,7 @@ public interface OrderMapper {
     @Mapping(source = "coffee.korName", target = "korName")
     @Mapping(source = "coffee.engName", target = "engName")
     @Mapping(source = "coffee.price.value", target = "price")
-    OrderCoffee.Response orderCoffeeToOrderCoffeeResponseDto(OrderCoffee orderCoffee);
+    OrderCoffeeDto.Response orderCoffeeToOrderCoffeeResponseDto(OrderCoffee orderCoffee);
 
 
     // 주문한 커피 정보를 수동으로 직접 매핑하는 예

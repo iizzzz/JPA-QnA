@@ -2,7 +2,9 @@ package com.qna.dto;
 
 
 import com.qna.entity.Order;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.Valid;
@@ -14,17 +16,21 @@ import java.util.List;
 public class OrderDto {
 
     @Getter
-    public class OrderPostDto {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OrderPostDto {
         @Positive
         private long memberId;
 
         @NotNull
         @Valid
-        private List<OrderCoffee.Request> orderCoffees;
+        private List<OrderCoffeeDto.Request> orderCoffees;
     }
 
     @Getter
-    public class OrderPatchDto {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OrderPatchDto {
         private long orderId;
         private Order.OrderStatus orderStatus;
 
@@ -35,11 +41,13 @@ public class OrderDto {
 
     @Getter
     @Setter
-    public class OrderResponseDto {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OrderResponseDto {
         private long orderId;
         private long memberId;
         private Order.OrderStatus orderStatus;
-        private List<OrderCoffee.Response> orderCoffees;
+        private List<OrderCoffeeDto.Response> orderCoffees;
         private LocalDateTime createdAt;
 
     }

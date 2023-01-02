@@ -1,9 +1,12 @@
 package com.qna.dto;
 
+import com.qna.entity.Answer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 public class QuestionDto {
 
@@ -22,14 +25,9 @@ public class QuestionDto {
     @AllArgsConstructor
     public static class Patch {
         private long questionId;
-        private long memberId;
         private String title;
         private String content;
         private Boolean secret;
-
-        public void setQuestionId(long questionId) {
-            this.questionId = questionId;
-        }
     }
 
     @Data
@@ -39,7 +37,7 @@ public class QuestionDto {
     public static class Response {
         private long questionId;
         private long memberId;
-        private long answerId;
+        private List<Answer> answers;
         private String title;
         private String content;
         private Boolean secret;
