@@ -4,14 +4,17 @@ import com.qna.entity.Member;
 import com.qna.error.BusinessLogicException;
 import com.qna.error.ExceptionCode;
 import com.qna.repository.MemberRepository;
+import com.qna.security.CustomAuthorityUtils;
 import com.qna.utils.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,10 +23,20 @@ import java.util.Optional;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final CustomBeanUtils<Member> beanUtils;
+    private final PasswordEncoder passwordEncoder;
+    private final CustomAuthorityUtils authorityUtils;
 
     public Member createMember(Member member) {
         // 이미 등록된 이메일인지 확인
         verifyExistsEmail(member.getEmail());
+
+        // 패스워드 암호화
+        String encode = passwordEncoder.encode(member.getPassword());
+        member.setPassword(encode);
+
+        // 권한 생성, 주입
+        List<String> roles = authorityUtils.createRoles(member.getEmail());
+        member.setRoles(roles);
 
         return memberRepository.save(member);
     }
