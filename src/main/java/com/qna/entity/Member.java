@@ -22,6 +22,9 @@ public class Member extends Auditable {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false, length = 150)
+    private String password;
+
     @Column(length = 100, nullable = false)
     private String name;
 
@@ -43,6 +46,9 @@ public class Member extends Auditable {
 
     @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Answer> answers = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles;
 
     public Member(String email) {
         this.email = email;
