@@ -16,6 +16,8 @@ public class MemberDto {
         @Email
         private String email;
 
+        private String password;
+
         @NotBlank(message = "이름은 공백이 아니어야 합니다.")
         private String name;
 
@@ -28,6 +30,8 @@ public class MemberDto {
     @AllArgsConstructor
     public static class Patch {
         private long memberId;
+
+        private String password;
 
         @NotSpace(message = "회원 이름은 공백이 아니어야 합니다")
         private String name;
