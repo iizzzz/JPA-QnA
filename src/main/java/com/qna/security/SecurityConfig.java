@@ -61,7 +61,7 @@ public class SecurityConfig {
         return source;
     }
 
-    // JWTAuthenticationFIlter 등록
+    // JWT AuthenticationFilter 등록
     public class CustomFilterConfigurer extends AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> {
 
         @Override // Configure Method를 Override 함으로써 SecurityConfig를 Customizing 할 수 있다
