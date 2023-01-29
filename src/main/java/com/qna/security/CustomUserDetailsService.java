@@ -32,7 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Member findMember = optMember.orElseThrow(() ->
                 new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
 
-        Collection<? extends GrantedAuthority> authorities = authorityUtils.createAuthorities(findMember.getEmail());
+        Collection<? extends GrantedAuthority> authorities = authorityUtils.createAuthorities(findMember.getRoles());
 
         return new CustomUserDetails(findMember);
     }
