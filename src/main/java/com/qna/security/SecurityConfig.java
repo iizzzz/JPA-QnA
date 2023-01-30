@@ -1,5 +1,8 @@
 package com.qna.security;
 
+import com.qna.security.filter.JwtAuthenticationFilter;
+import com.qna.security.filter.MemberAuthenticationFailureHandler;
+import com.qna.security.filter.MemberAuthenticationSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +38,7 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .formLogin().disable()
                 .httpBasic().disable()
-                .apply(new CustomFilterConfigurer()) // JWT 로그인 설정
+                .apply(new CustomFilterConfigurer()) // Custom Configuration 추가
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
                         .anyRequest().permitAll()
@@ -62,21 +65,29 @@ public class SecurityConfig {
     }
 
     // JWT AuthenticationFilter 등록
+    // AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> 를 이용해 Custom Configurer 구현 가능
+    // 파라미터로는 <상속하는타입, HttpSecurityBuilder를 상속하는 타입을 제네릭으로 지정>
     public class CustomFilterConfigurer extends AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> {
 
-        @Override // Configure Method를 Override 함으로써 SecurityConfig를 Customizing 할 수 있다
+        // Configure Method 를 Override 함으로써 SecurityConfig 를 Customizing 할 수 있다
+        @Override
         public void configure(HttpSecurity builder) throws Exception {
 
-            // getSharedObject()로 인해 SecurityConfigurer간에 공유되는 객체를 얻을 수 있음
+            // getSharedObject()로 인해 SecurityConfigurer 간에 공유되는 객체를 얻을 수 있음
+            // AuthenticationManager 객체를 얻음
             AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
 
-            // 객체 생성과 동시에 AuthenticationManager & JwtTokenizer를 DI 해줌
+            // JwtAuthenticationFilter 객체 생성과 동시에,
+            // AuthenticationManager & JwtTokenizer를 DI 해줌
             JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtTokenizer);
 
-            // setFilterProccessUrl() 를 통해 로그인 URL Customize 가능 (default url은 /login 이다)
+            // setFilterProccessUrl() 를 통해 로그인 URL Customizing (default url은 /login 이다)
             jwtAuthenticationFilter.setFilterProcessesUrl("/auth/login");
+            // Success, Failure Handler 추가
+            jwtAuthenticationFilter.setAuthenticationSuccessHandler(new MemberAuthenticationSuccessHandler());
+            jwtAuthenticationFilter.setAuthenticationFailureHandler(new MemberAuthenticationFailureHandler());
 
-            // addFilter()를 통해 JWT 검증필터를 Filter Chain에 추가
+            // addFilter()를 통해 JWT 검증필터를 Spring Security Filter Chain에 추가
             builder.addFilter(jwtAuthenticationFilter);
         }
     }
