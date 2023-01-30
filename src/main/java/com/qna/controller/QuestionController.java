@@ -19,7 +19,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
-@RequestMapping("/questions")
+@RequestMapping("/api/questions")
 @RestController
 @Validated
 @RequiredArgsConstructor

@@ -20,7 +20,7 @@ import javax.validation.constraints.Positive;
 
 @Validated
 @RestController
-@RequestMapping("/answers")
+@RequestMapping("/api/answers")
 @RequiredArgsConstructor
 public class AnswerController {
 

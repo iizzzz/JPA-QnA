@@ -22,12 +22,12 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v11/members")
+@RequestMapping("/api/members")
 @Validated
 @Slf4j
 @RequiredArgsConstructor
 public class MemberController {
-    private final static String MEMBER_DEFAULT_URL = "/v11/members";
+    private final static String MEMBER_DEFAULT_URL = "/members";
     private final MemberService memberService;
     private final MemberMapper mapper;
 
