@@ -1,13 +1,13 @@
 package com.qna.security;
 
-import com.qna.security.filter.JwtAuthenticationFilter;
-import com.qna.security.filter.MemberAuthenticationFailureHandler;
-import com.qna.security.filter.MemberAuthenticationSuccessHandler;
+import com.qna.security.filter.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,13 +22,29 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 public class SecurityConfig {
 
-    private final JwtTokenizer jwtTokenizer;
+    /**
+     * Session Creation Policy를 위한 CustomAuthorityUtils 추가
+     * AutenticationEntryPoint & AccessDeniedHandler 추가
+     */
 
-    public SecurityConfig(JwtTokenizer jwtTokenizer) {
+    private final JwtTokenizer jwtTokenizer;
+    private final CustomAuthorityUtils authorityUtils;
+
+    public SecurityConfig(JwtTokenizer jwtTokenizer, CustomAuthorityUtils authorityUtils) {
         this.jwtTokenizer = jwtTokenizer;
+        this.authorityUtils = authorityUtils;
     }
 
-    // HTTP 설정
+    /*
+     * .apply() -> Custom Configuration 적용
+     * --- sessionManagement()에 대한 설명 ---
+     * SessionCreationPolicy.ALWAYS - 항상 세션 생성
+     * SessionCreationPolicy.NEVER - 세션을 생성하지 않지만 이미 생성된게 있다면 사용
+     * SessionCreationPolicy.IF_REQUIRED - 필요한 경우만 세션 생성
+     * SessionCreationPolicy.STATELESS - 세션을 생성하지 않으며, SecurityContext 정보를 얻기위해, 세션 사용 X
+     * --- authorizeHttpRequests 설명 ---
+     * URL 별로 접근 권한 부여
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -36,12 +52,26 @@ public class SecurityConfig {
                 .and()
                 .csrf().disable()
                 .cors(withDefaults())
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .formLogin().disable()
                 .httpBasic().disable()
-                .apply(new CustomFilterConfigurer()) // Custom Configuration 추가
+                // Exception Handling - EntryPoint, AccessDenied Handler 추가
+                .exceptionHandling()
+                .authenticationEntryPoint(new MemberAuthenticationEntryPoint())
+                .accessDeniedHandler(new MemberAccessDeniedHandler())
                 .and()
+                // Custom Configuration 추가
+                .apply(new CustomFilterConfigurer())
+                .and()
+                // URL 별로 접근 권한 부여
                 .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll()
+                                .antMatchers(HttpMethod.POST, "/*/members").permitAll()
+                                .antMatchers(HttpMethod.PATCH, "/*/members").hasRole("USER")
+                                .antMatchers(HttpMethod.GET, "/*/members").hasRole("ADMIN")
+                                .antMatchers(HttpMethod.GET, "/*/members/**").hasAnyRole("USER", "ADMIN")
+                                .antMatchers(HttpMethod.DELETE, "/*/members/**").hasRole("USER")
+                                .anyRequest().permitAll()
                 );
         return http.build();
     }
@@ -64,9 +94,10 @@ public class SecurityConfig {
         return source;
     }
 
-    // JWT AuthenticationFilter 등록
-    // AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> 를 이용해 Custom Configurer 구현 가능
-    // 파라미터로는 <상속하는타입, HttpSecurityBuilder를 상속하는 타입을 제네릭으로 지정>
+    /** JWT AuthenticationFilter 등록
+     * AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> 를 이용해 Custom Configurer 구현 가능
+     * 파라미터로는 <상속하는타입, HttpSecurityBuilder를 상속하는 타입을 제네릭으로 지정>
+     */
     public class CustomFilterConfigurer extends AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> {
 
         // Configure Method 를 Override 함으로써 SecurityConfig 를 Customizing 할 수 있다
@@ -87,8 +118,13 @@ public class SecurityConfig {
             jwtAuthenticationFilter.setAuthenticationSuccessHandler(new MemberAuthenticationSuccessHandler());
             jwtAuthenticationFilter.setAuthenticationFailureHandler(new MemberAuthenticationFailureHandler());
 
+            // JWT를 생성할 때, JwtVerificationFilter 에서 사용되는 객체들을 DI
+            JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(jwtTokenizer, authorityUtils);
+
             // addFilter()를 통해 JWT 검증필터를 Spring Security Filter Chain에 추가
-            builder.addFilter(jwtAuthenticationFilter);
+            // addFilter()를 JwtAuthenticationFilter가 수행된 바로 다음에 동작하도록 추가
+            builder.addFilter(jwtAuthenticationFilter)
+                    .addFilterAfter(jwtVerificationFilter, JwtAuthenticationFilter.class);
         }
     }
 }
