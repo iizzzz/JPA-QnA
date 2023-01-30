@@ -27,14 +27,11 @@ public class Answer {
     @JoinColumn(name = "QUESTION_ID")
     private Question question;
 
-    void addMember(Member member) {
+    public void addMember(Member member) {
         this.member = member;
     }
 
-    void addQuestion(Question question) {
+    public void addQuestion(Question question) {
         this.question = question;
-        if (!this.question.getAnswers().contains(this)) {
-            this.question.getAnswers().add(this);
-        }
     }
 }

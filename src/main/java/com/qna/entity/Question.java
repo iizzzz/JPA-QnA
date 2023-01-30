@@ -37,18 +37,8 @@ public class Question {
     @JsonIgnore
     private Member member;
 
-    @OneToMany(mappedBy = "question", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<Answer> answers = new ArrayList<>();
-
-    void addMember(Member member) {
+    public void addMember(Member member) {
         this.member = member;
-        if (!this.member.getQuestions().contains(this))
-            this.member.getQuestions().add(this);
-    }
-
-    void addAnswer(Answer answer) {
-        this.getAnswers().add(answer);
-        answer.setQuestion(this);
     }
 
     public Question(String title, String content, Member member) {

@@ -41,12 +41,6 @@ public class Member extends Auditable {
     @OneToOne(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Stamp stamp;
 
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<Question> questions = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<Answer> answers = new ArrayList<>();
-
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
 
@@ -58,16 +52,6 @@ public class Member extends Auditable {
         this.email = email;
         this.name = name;
         this.phone = phone;
-    }
-
-    public void setQuestion(Question question) {
-        this.getQuestions().add(question);
-        question.setMember(this);
-    }
-
-    public void setAnswer(Answer answer) {
-        this.getAnswers().add(answer);
-        answer.setMember(this);
     }
 
     public void setOrder(Order order) {
