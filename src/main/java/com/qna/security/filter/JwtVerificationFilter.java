@@ -16,10 +16,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-// Request당 1번만 실행되는 Security Filter 상속
+/**
+ * Request당 1번만 실행되는 Security Filter 상속
+ * 인증과 관련된 Filter는 성공 & 실패 단 한번만 판단하면 되므로,
+ * 한 번만 실행되는 OncePerRequestFilter를 사용하는게 적합함
+ */
 public class JwtVerificationFilter extends OncePerRequestFilter {
 
+    // JWT를 검증하고 Claims(토큰에 포함된 정보)를 얻는데 사용됨
     private final JwtTokenizer jwtTokenizer;
+    // JWT 검증에 성공하면 Authentication 객체에 채울 사용자의 권한을 생성하는데 사용
     private final CustomAuthorityUtils authorityUtils;
 
     // JwtTokenizer =  JWT 검증 + Claims를 얻는데 사용
@@ -29,6 +35,9 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         this.authorityUtils = authorityUtils;
     }
 
+    /**
+     * 아래의 두 검증 메소드를 통과한 후 doFilter 메소드로 다음 필터로 넘어감
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -40,6 +49,10 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * 1. Authorization Header의 값을 얻음
+     * 2. 헤더의 값이 null 이거나 Bearer로 시작하지 않으면 해당 Filter 동작 수행하지 않게 함
+     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 
@@ -50,9 +63,11 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
     /** [JWT 검증 Private Method]
      *  jws = request의 Header에서 JWT를 얻고 replace()를 이용해 Bearer 부분 삭제
-     *  base64EncodedSecretKey = JWT 서명을 검증하기 위한 Secret Key
+     *  여기서의 JWT는 response header로 전달받은 JWT를 request header에 추가해서 서버측에 전송한 JWT임
+     *  base64EncodedSecretKey = JWT 서명(Signature)을 검증하기 위한 Secret Key(JWT 자체를 검증함)
      *  claims = JWT에서 Claims 파싱.
      *  * 파싱에 성공 == 내부적으로 서명 검증에 성공했다는 말과 동일함
+     *  그러므로 verify()같은 메서드가 필요없고 정상 파싱되면 서명 검증도 자연스럽게 성공했다고 기억하면됨
      */
     private Map<String, Object> verifyJws(HttpServletRequest request) {
         String jws = request.getHeader("Authorization").replace("Bearer ", ""); // (3-1)
@@ -63,9 +78,9 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     }
 
     /** [Authentication 객체를 SecurityContext에 저장하기 위한 Private Method]
-     * username = 파싱한 claims에서 username을 얻음
-     * authorities = claims에서 얻은 권한정보를 기반으로 List<GrantedAuthority> 생성
-     * authentication = username과 GrantedAuthority를 포함해 Authentication 객체 생성
+     * username = 파싱한 JWT의 claims에서 username을 얻음
+     * authorities = claims에서 얻은 권한정보를 기반으로 List<GrantedAuthority> 권한 생성
+     * authentication = username과 GrantedAuthority 권한을 포함해 Authentication 객체 생성
      * SecurityContext에 Authentication 저장
      */
     private void setAuthenticationToContext(Map<String, Object> claims) {
