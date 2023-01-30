@@ -2,6 +2,8 @@ package com.qna.security.filter;
 
 import com.qna.security.CustomAuthorityUtils;
 import com.qna.security.JwtTokenizer;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,14 +39,26 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
     /**
      * 아래의 두 검증 메소드를 통과한 후 doFilter 메소드로 다음 필터로 넘어감
+     * AuthenticationEntryPoint에서 사용될 예외 로직 추가
+     * JWT에 대한 서명 검증이 실패할 경우 throw 되는 SignatureException에 대한 처리가 없으므로 예외 로직 추가
+     * JWT가 만료될 경우 발생하는 ExpiredJwtException에 대한 예외 처리 로직 추가
+     * Exception을 catch 하고 다시 throw 하지 않고 단순이 setAttribute만 하는 이유
+     * 이곳의 예외 로직은클라이언트의 인증정보가 Context에 저장되지 않게 하는것이며,
+     * 저장되지 않으면 AuthenticationException이 발생하고 이걸 EntryPoint 클래스에서 처리하게 됨
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        // JWT 검증 Private Method
-        Map<String, Object> claims = verifyJws(request);
-
-        setAuthenticationToContext(claims);
+        try {
+            Map<String, Object> claims = verifyJws(request);
+            setAuthenticationToContext(claims);
+        } catch (SignatureException se) {
+            request.setAttribute("exception", se);
+        } catch (ExpiredJwtException ee) {
+            request.setAttribute("exception", ee);
+        } catch (Exception e) {
+            request.setAttribute("exception", e);
+        }
 
         filterChain.doFilter(request, response);
     }
