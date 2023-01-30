@@ -48,7 +48,7 @@ public class CustomAuthorityUtils {
     // DB 저장용 Role 생성 검증 요소는 알아서 필드 선정
     public List<String> createRoles(String email) {
 
-        if (email.equals(adminMailAddress)) {
+        if (email.contains(adminMailAddress)) {
             return ADMIN;
         }
         return USER;

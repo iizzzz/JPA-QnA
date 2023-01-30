@@ -20,7 +20,7 @@ spring:
               springframework:
                 orm:
                   jpa: DEBUG
-#    open-in-view: true
+    open-in-view: false
 
 server:
   servlet:
@@ -30,7 +30,7 @@ server:
 
 mail:
   address:
-    admin: admin@abc.com
+    admin: @admin.com
 
 jwt:
   key:
