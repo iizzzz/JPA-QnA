@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.qna.entity.Answer;
 import com.qna.entity.Member;
 import com.qna.entity.Question;
+import com.qna.entity.contant.QuestionStatus;
 import com.qna.error.BusinessLogicException;
 import com.qna.error.ExceptionCode;
 import com.qna.repository.QuestionRepository;
@@ -24,62 +25,62 @@ public class QuestionService {
 
     //----------------------------- DI ---------------------------------
     private final QuestionRepository questionRepository;
-//    private final CustomBeanUtils beanUtils;
     private final MemberService memberService;
 
     //----------------------------- DI ---------------------------------
 
 
     /* 생성 - 완료 */
-    public Question create(Question question) {
-        // 요구사항 1. 질문은 회원만 등록 가능 - 완료
-        Member member = memberService.findVerifiedMember(question.getMember().getMemberId());
-
+    public Question create(Question question, Member member) {
+        // 요구사항 1. 질문은 회원만 등록 가능 - 해결
         // 요구사항 2. 질문 등록시 날짜 생성 -> Auditable을 상속받음 - 해결
-
         // 요구사항 3-4. 질문의 상태값 필요 -> 질문 생성 시, 기본값을 REGISTRATION으로 설정 - 해결
-
         // 요구사항 5. 제목과 내용은 필수 입력 -> DTO <-> Entity 매핑으로 - 해결
-        Question newQuestion = Question.builder()
-                .member(member)
-                .title(question.getTitle())
-                .content(question.getContent())
-                .status(Question.QuestionStatus.REGISTRATION)
-                .secret(question.getSecret()) // 요구사항 6. 공개,비밀글 설정값을 DTO에서 받아와서 객체에 삽입 - 해결
-                .build();
+        // 요구사항 6. 공개,비밀글 설정값을 DTO에서 받아와서 객체에 삽입 - 해결
 
-        return questionRepository.save(newQuestion);
+        List<String> roles = member.getRoles();
+
+        if (roles == null) {
+            throw new BusinessLogicException(ExceptionCode.NOT_AUTHORIZED);
+        }
+
+        question.setMember(member);
+
+        return questionRepository.save(question);
     }
 
     /* 수정 */
     public Question update(Question question) {
         // 요구사항 1. 질문은 회원만 수정 가능 (Security 미적용으로 부분 적용) - 해결
+        // 요구사항 2. 질문의 공개여부를 변경할 경우 상태 적용 - 해결
+        // 요구사항 3. 질문을 비공개로 설정할 수 있는건 고객만 가능 - 해결
+        // 요구사항 4. 답변이 등록 될 경우 상태 수정 - Answer 쪽에서 구현
+        // 요구사항 5-6. 괸리자가 답변을 달 경우 질문의 상태 ANSWERED로 수정 + 관리자만 상태 변경 가능
+        // 요구사항 7. 질문 DELETE 상태로의 변경은 회원만 가능
+        // 질문의 공개 & 비밀글 여부가 바뀌면 답변의 공개 & 비밀글 여부 같이 변경 - 해결
+
         Question findQuestion = findVerifiedQuestion(question.getQuestionId());
 
-        // 요구사항 3. 질문을 비공개로 설정할 수 있는건 고객만 가능 (Security 미적용)
+        List<String> roles = findQuestion.getMember().getRoles();
 
-        // 요구사항 5-6. 괸리자가 답변을 달 경우 질문의 상태 ANSWERED로 수정 + 관리자만 상태 변경 가능 (Security 미적용)
-
-
-        // 요구사항 2. 질문의 공개여부를 변경할 경우 상태 적용 - 해결
-        // 요구사항 4. 답변이 등록 될 경우 상태 수정 - 해결
-        // 요구사항 7. 질문 DELETE 상태로의 변경은 회원만 가능
-        Optional.ofNullable(question.getTitle())
-                .ifPresent(findQuestion::setTitle);
-        Optional.ofNullable(question.getContent())
-                .ifPresent(findQuestion::setContent);
-        Optional.ofNullable(question.getSecret())
-                .ifPresent(findQuestion::setSecret);
-
-        // 질문의 공개 & 비밀글 여부가 바뀌면 답변의 공개 & 비밀글 여부 같이 변경 - 해결
-        List<Answer> answerList = findQuestion.getAnswers();
-        for (Answer answer : answerList) {
-            if (findQuestion.getSecret() == Boolean.TRUE) {
-                answer.setSecret(Boolean.TRUE);
-            } else {
-                answer.setSecret(Boolean.FALSE);
-            }
+        if (roles == null) {
+            throw new BusinessLogicException(ExceptionCode.NOT_AUTHORIZED);
         }
+
+        if (roles.contains("ADMIN")) {
+            findQuestion.setSecret(question.getSecret());
+        } else {
+            throw new BusinessLogicException(ExceptionCode.VALID_AUTHORIZED);
+        }
+
+        if (roles.contains("USER")) {
+            findQuestion.setStatus(question.getStatus());
+        } else {
+            throw new BusinessLogicException(ExceptionCode.VALID_AUTHORIZED);
+        }
+
+        findQuestion.update(question.getQuestionId(), question.getTitle(), question.getContent());
+
         return questionRepository.save(findQuestion);
     }
 
