@@ -84,9 +84,9 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
      *  그러므로 verify()같은 메서드가 필요없고 정상 파싱되면 서명 검증도 자연스럽게 성공했다고 기억하면됨
      */
     private Map<String, Object> verifyJws(HttpServletRequest request) {
-        String jws = request.getHeader("Authorization").replace("Bearer ", ""); // (3-1)
-        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey()); // (3-2)
-        Map<String, Object> claims = jwtTokenizer.getClaims(jws, base64EncodedSecretKey).getBody();   // (3-3)
+        String jws = request.getHeader("Authorization").replace("Bearer ", "");
+        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
+        Map<String, Object> claims = jwtTokenizer.getClaims(jws, base64EncodedSecretKey).getBody();
 
         return claims;
     }
