@@ -13,6 +13,8 @@ public enum ExceptionCode {
     INVALID_MEMBER_STATUS(400, "Invalid member status"),  // TO 추가된 부분
     QUESTION_NOT_FOUND(404, "Question Not Found"),
     QUESTION_DELETED(404, "Question Deleted"),
+    NOT_AUTHORIZED(403, "Not Login Member"),
+    VALID_AUTHORIZED(403, "Not Authorized Admin"),
     QUESTION_NOT_AUTHORIZED(405, "Not Authorized Question"),
     ANSWER_NOT_FOUND(404, "Answer Not Found"),
     ANSWER_DELETED(404, "Answer Deleted");
