@@ -1,16 +1,21 @@
 package com.qna.dto;
 
 import com.qna.entity.Member;
+import com.qna.entity.contant.UserStatus;
 import com.qna.utils.NotSpace;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 public class MemberDto {
     @Getter
+    @AllArgsConstructor
     public static class Post {
         @NotBlank
         @Email
@@ -41,7 +46,7 @@ public class MemberDto {
                 message = "휴대폰 번호는 010으로 시작하는 11자리 숫자와 '-'로 구성되어야 합니다")
         private String phone;
 
-        private Member.MemberStatus memberStatus;
+        private UserStatus status;
 
 
         public void setMemberId(long memberId) {
@@ -49,14 +54,28 @@ public class MemberDto {
         }
     }
 
+    @Getter @Setter
+    @Builder
     @AllArgsConstructor
-    @Getter
     public static class Response {
         private long memberId;
         private String email;
         private String name;
         private String phone;
-        private String memberStatus;
+        private UserStatus status;
         private int stampCount;
+        private List<String> roles;
+
+        public static Response of(Member member) {
+            return Response.builder()
+                    .memberId(member.getMemberId())
+                    .email(member.getEmail())
+                    .name(member.getName())
+                    .phone(member.getPhone())
+                    .status(member.getStatus())
+                    .stampCount(member.getStamp().getStampCount())
+                    .roles(member.getRoles())
+                    .build();
+        }
     }
 }

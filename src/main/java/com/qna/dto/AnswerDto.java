@@ -1,21 +1,18 @@
 package com.qna.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.qna.entity.Answer;
+import lombok.*;
 
 public class AnswerDto {
 
-    @Data
+    @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Post {
-        private long questionId;
-        private long memberId;
         private String content;
     }
 
-    @Data
+    @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Patch {
@@ -23,16 +20,26 @@ public class AnswerDto {
         private long answerId;
         private String content;
 
+        public void setAnswerId(long answerId) {
+            this.answerId = answerId;
+        }
     }
 
-    @Data
+    @Getter @Setter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Response {
         private long answerId;
-        private long memberId;
-        private long questionId;
         private String content;
-        private String secret;
+        private Boolean secret;
+
+        public static Response of(Answer answer) {
+            return Response.builder()
+                    .answerId(answer.getAnswerId())
+                    .content(answer.getContent())
+                    .secret(answer.getSecret())
+                    .build();
+        }
     }
 }
