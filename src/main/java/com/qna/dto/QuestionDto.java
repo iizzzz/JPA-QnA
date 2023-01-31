@@ -1,26 +1,22 @@
 package com.qna.dto;
 
-import com.qna.entity.Answer;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
+import com.qna.entity.Question;
+import com.qna.entity.contant.QuestionStatus;
+import lombok.*;
+import java.time.LocalDateTime;
 
 public class QuestionDto {
 
-    @Data
+    @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Post {
-        private long memberId;
         private String title;
         private String content;
         private Boolean secret;
     }
 
-    @Data
+    @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Patch {
@@ -28,20 +24,63 @@ public class QuestionDto {
         private String title;
         private String content;
         private Boolean secret;
+
+        public void setQuestionId(long questionId) {
+            this.questionId = questionId;
+        }
     }
 
-    @Data
+    @Getter @Setter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Response {
+    public static class SingleResponse {
         private long questionId;
-        private long memberId;
-        private List<Answer> answers;
         private String title;
         private String content;
         private Boolean secret;
-        private String status;
+        private QuestionStatus status;
+        private int views;
+        private LocalDateTime createdAt;
+        private String writer;
 
+        public static SingleResponse of(Question question) {
+            return SingleResponse.builder()
+                    .questionId(question.getQuestionId())
+                    .title(question.getTitle())
+                    .content(question.getContent())
+                    .secret(question.getSecret())
+                    .status(question.getStatus())
+                    .views(question.getViews())
+                    .writer(question.getMember().getName())
+                    .createdAt(question.getCreatedAt())
+                    .build();
+        }
+    }
+
+    @Getter @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MultiResponse {
+        private long questionId;
+        private String title;
+        private Boolean secret;
+        private QuestionStatus status;
+        private int views;
+        private String writer;
+        private LocalDateTime createAt;
+
+        public static MultiResponse of(Question question) {
+            return MultiResponse.builder()
+                    .questionId(question.getQuestionId())
+                    .title(question.getTitle())
+                    .secret(question.getSecret())
+                    .status(question.getStatus())
+                    .views(question.getViews())
+                    .writer(question.getMember().getName())
+                    .createAt(question.getCreatedAt())
+                    .build();
+        }
     }
 }
