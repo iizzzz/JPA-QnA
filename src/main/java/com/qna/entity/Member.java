@@ -1,6 +1,7 @@
 package com.qna.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.qna.entity.contant.UserStatus;
 import com.qna.utils.Auditable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,7 +34,7 @@ public class Member extends Auditable {
 
     @Enumerated(value = EnumType.STRING)
     @Column(length = 20, nullable = false)
-    private MemberStatus memberStatus = MemberStatus.MEMBER_ACTIVE;
+    private UserStatus status = UserStatus.ACTIVE;
 
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>();
@@ -67,19 +68,6 @@ public class Member extends Auditable {
         this.stamp = stamp;
         if (stamp.getMember() != this) {
             stamp.setMember(this);
-        }
-    }
-
-    public enum MemberStatus {
-        MEMBER_ACTIVE("활동중"),
-        MEMBER_SLEEP("휴면 상태"),
-        MEMBER_QUIT("탈퇴 상태");
-
-        @Getter
-        private String status;
-
-        MemberStatus(String status) {
-            this.status = status;
         }
     }
 }
