@@ -5,7 +5,9 @@ import com.qna.error.BusinessLogicException;
 import com.qna.error.ExceptionCode;
 import com.qna.repository.MemberRepository;
 import com.qna.security.CustomAuthorityUtils;
+import com.qna.security.JwtTokenizer;
 import com.qna.utils.CustomBeanUtils;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +28,8 @@ public class MemberService {
     private final CustomBeanUtils<Member> beanUtils;
     private final PasswordEncoder passwordEncoder;
     private final CustomAuthorityUtils authorityUtils;
+
+    private final JwtTokenizer tokenizer;
 
     public Member createMember(Member member) {
         // 이미 등록된 이메일인지 확인
@@ -51,8 +56,8 @@ public class MemberService {
         Optional.ofNullable(member.getPhone())
                 .ifPresent(phone -> findMember.setPhone(phone));
         // 추가된 부분
-        Optional.ofNullable(member.getMemberStatus())
-                .ifPresent(memberStatus -> findMember.setMemberStatus(memberStatus));
+        Optional.ofNullable(member.getStatus())
+                .ifPresent(memberStatus -> findMember.setStatus(memberStatus));
 //        findMember.setModifiedAt(LocalDateTime.now());
 
         return memberRepository.save(findMember);
@@ -66,22 +71,6 @@ public class MemberService {
 
         return memberRepository.save(updatedMember);
     }
-
-//    public Member updateMember(Member member) {
-//        Member findMember = findVerifiedMember(member.getMemberId());
-//
-//        // 수정할 정보들이 늘어나면 반복되는 코드가 늘어나는 문제점이 있음
-//        Optional.ofNullable(member.getName())
-//                .ifPresent(name -> findMember.setName(name));
-//        Optional.ofNullable(member.getPhone())
-//                .ifPresent(phone -> findMember.setPhone(phone));
-//        // 추가된 부분
-//        Optional.ofNullable(member.getMemberStatus())
-//                .ifPresent(memberStatus -> findMember.setMemberStatus(memberStatus));
-////        findMember.setModifiedAt(LocalDateTime.now());
-//
-//        return memberRepository.save(findMember);
-//    }
 
     public Member findMember(long memberId) {
         return findVerifiedMember(memberId);
@@ -101,10 +90,8 @@ public class MemberService {
     public Member findVerifiedMember(long memberId) {
         Optional<Member> optionalMember =
                 memberRepository.findById(memberId);
-        Member findMember =
-                optionalMember.orElseThrow(() ->
-                        new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
-        return findMember;
+        return optionalMember.orElseThrow(() ->
+                new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
 
     private void verifyExistsEmail(String email) {
