@@ -50,33 +50,46 @@ public class QuestionController {
     public SingleResponseDto patch(@PathVariable("question-id") @Positive long questionId,
                                    @Valid @RequestBody QuestionDto.Patch patch,
                                    @AuthenticationPrincipal Member member) {
+        memberService.findVerifiedMember(member.getMemberId());
+
         patch.setQuestionId(questionId);
 
-        Question update = questionService.update(mapper.patchToEntity(patch));
+        Question update = questionService.update(mapper.patchToEntity(patch), member);
 
         return new SingleResponseDto<>(mapper.entityToResponse(update));
     }
 
     @GetMapping("/{question-id}")
-    public ResponseEntity get(@PathVariable("question-id") @Positive long questionId) {
-        Question question = questionService.find(questionId);
+    @ResponseStatus(HttpStatus.OK)
+    public SingleResponseDto get(@PathVariable("question-id") @Positive long questionId,
+                                 @AuthenticationPrincipal Member member) {
+        memberService.findVerifiedMember(member.getMemberId());
 
-        return new ResponseEntity<>(new SingleResponseDto<>(mapper.entityToResponse(question)), HttpStatus.OK);
+        Question question = questionService.find(questionId, member);
+
+        return new SingleResponseDto<>(mapper.entityToResponse(question));
     }
 
     @GetMapping
-    public ResponseEntity gets(@Positive @RequestParam(defaultValue = "1") int page,
-                               @Positive @RequestParam(defaultValue = "10") int size) {
-        Page<Question> pageQuestion = questionService.findAll(page-1, size);
+    @ResponseStatus(HttpStatus.OK)
+    public MultiResponseDto gets(@Positive @RequestParam(defaultValue = "1") int page,
+                               @Positive @RequestParam(defaultValue = "10") int size,
+                                 @AuthenticationPrincipal Member member) {
+        memberService.findVerifiedMember(member.getMemberId());
+
+        Page<Question> pageQuestion = questionService.findAll(page-1, size, member);
         List<Question> questions = pageQuestion.getContent();
 
-        return new ResponseEntity<>(new MultiResponseDto<>(mapper.entityToResponses(questions), pageQuestion), HttpStatus.OK);
+        return new MultiResponseDto<>(mapper.entityToResponses(questions), pageQuestion);
     }
 
     @DeleteMapping("/{question-id}")
-    public ResponseEntity delete(@PathVariable("question-id") @Positive long questionId) {
-        questionService.delete(questionId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("question-id") @Positive long questionId,
+                       @AuthenticationPrincipal Member member) {
+        memberService.findVerifiedMember(member.getMemberId());
+
+        questionService.delete(questionId, member);
     }
 
 }
