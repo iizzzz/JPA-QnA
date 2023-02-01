@@ -72,7 +72,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
         String authorization = request.getHeader("Authorization");
 
-        return authorization == null | !authorization.startsWith("Bearer");
+        return authorization == null || !authorization.startsWith("Bearer");
     }
 
     /** [JWT 검증 Private Method]
