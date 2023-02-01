@@ -30,7 +30,7 @@ server:
 
 mail:
   address:
-    admin: @admin.com
+    admin: admin.com
 
 jwt:
   key:
