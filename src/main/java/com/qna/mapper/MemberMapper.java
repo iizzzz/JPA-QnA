@@ -14,7 +14,8 @@ public interface MemberMapper {
     Member memberPatchDtoToMember(MemberDto.Patch requestBody);
 
     @Mapping(source = "stamp.stampCount", target = "stampCount")
-    @Mapping(source = "memberStatus.status", target = "memberStatus")
+    @Mapping(source = "status", target = "status")
+    @Mapping(source = "roles", target = "roles")
     MemberDto.Response memberToMemberResponseDto(Member member);
     List<MemberDto.Response> membersToMemberResponseDtos(List<Member> members);
 }
