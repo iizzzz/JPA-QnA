@@ -28,9 +28,9 @@ server:
       force-response: true
       charset: UTF-8
 
-mail:
+email:
   address:
-    admin: admin.com
+    admin: admin@admin.com
 
 jwt:
   key:
