@@ -7,6 +7,7 @@ import com.qna.utils.Auditable;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,9 @@ public class Question extends Auditable {
     @ManyToOne(optional = false ,fetch = FetchType.EAGER)
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
+
+    @Column
+    private LocalDateTime deletedAt;
 
     public void addMember(Member member) {
         this.member = member;
