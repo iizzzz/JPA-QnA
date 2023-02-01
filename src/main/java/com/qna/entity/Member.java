@@ -1,6 +1,7 @@
 package com.qna.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.qna.entity.contant.Role;
 import com.qna.entity.contant.UserStatus;
 import com.qna.utils.Auditable;
 import lombok.Getter;
@@ -45,7 +46,7 @@ public class Member extends Auditable {
     // 사용자 등록 시, 사용자의 권한 추가
     // RDB는 컬렉션을 저장할수 없으므로 컬렉션 객체인걸 어노테이션으로 명시
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles;
+    private List<Role> roles;
 
     public Member(String email) {
         this.email = email;

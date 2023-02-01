@@ -1,6 +1,7 @@
 package com.qna.dto;
 
 import com.qna.entity.Member;
+import com.qna.entity.contant.Role;
 import com.qna.entity.contant.UserStatus;
 import com.qna.utils.NotSpace;
 import lombok.AllArgsConstructor;
@@ -64,7 +65,7 @@ public class MemberDto {
         private String phone;
         private UserStatus status;
         private int stampCount;
-        private List<String> roles;
+        private List<Role> roles;
 
         public static Response of(Member member) {
             return Response.builder()

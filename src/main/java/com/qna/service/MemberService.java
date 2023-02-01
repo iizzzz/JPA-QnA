@@ -1,13 +1,13 @@
 package com.qna.service;
 
 import com.qna.entity.Member;
+import com.qna.entity.contant.Role;
 import com.qna.error.BusinessLogicException;
 import com.qna.error.ExceptionCode;
 import com.qna.repository.MemberRepository;
 import com.qna.security.CustomAuthorityUtils;
 import com.qna.security.JwtTokenizer;
 import com.qna.utils.CustomBeanUtils;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +39,7 @@ public class MemberService {
         member.setPassword(encode);
 
         // 권한 생성, 주입
-        List<String> roles = authorityUtils.createRoles(member.getEmail());
+        List<Role> roles = authorityUtils.createRoles(member.getEmail());
         member.setRoles(roles);
 
         return memberRepository.save(member);
