@@ -5,7 +5,7 @@ Pracktice Spring Data Jpa & Github Project Board
 
 ---
 
-## ⭐ 1. 연관관계 Mapping
+## ⭐ 1. 연관관계 Mapping (단방향 & 양방향 )
 
 <br>
 
@@ -37,14 +37,14 @@ Pracktice Spring Data Jpa & Github Project Board
 - #### 오더커피:커피
     - N:1
 
-> Question
+> Question (단방향)
 
 - #### 질문:멤버
     - 1:N
 - #### 질문:답변
     - 1:N
 
-> Answer
+> Answer (단방향)
 
 - #### 질문:답변
     - 1:N
@@ -86,9 +86,9 @@ Pracktice Spring Data Jpa & Github Project Board
 > 📌 질문 조회
 
 - #### 1건의 특정 질문을 회원과 관리자 모두 조회 가능
-    - 부분완료 (Security 기능 미구현)
+    - 완료
 - #### 비밀글 상태의 질문은 등록한 회원과 관리자만 조회 가능
-    - 미완료 (Security 기능 미구현)
+    - 완료
 - #### 질문 조회시 답변도 있다면 답변 출력
     - 완료
 - #### 삭제 상태인 질문은 조회 불가능
