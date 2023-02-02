@@ -1,7 +1,7 @@
 package com.qna.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qna.dto.LoginDto;
+import com.qna.dto.security.LoginDto;
 import com.qna.entity.Member;
 import com.qna.security.JwtTokenizer;
 import lombok.SneakyThrows;
