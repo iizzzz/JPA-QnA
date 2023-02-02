@@ -1,4 +1,4 @@
-package com.qna.dto;
+package com.qna.dto.security;
 
 import com.qna.entity.contant.Role;
 import lombok.Getter;
